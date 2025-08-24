@@ -47,14 +47,14 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing, onContact, onSave })
           <div className="text-right">
             <p className="text-2xl font-bold text-green-600">R{listing.price}</p>
             <p className="text-sm text-gray-500">
-              {listing.listingType === 'rent' ? '/month' : 'once-off'}
+              {listing.category === 'rent' ? '/month' : 'once-off'}
             </p>
           </div>
         </div>
         
         <div className="flex items-center text-gray-600 mb-2">
           <MapPin className="h-4 w-4 mr-1" />
-          <span className="text-sm">{listing.township}, {listing.region}</span>
+          <span className="text-sm">{listing.region.township}, {listing.region.name}</span>
         </div>
         
         <div className="flex flex-wrap gap-1 mb-3">

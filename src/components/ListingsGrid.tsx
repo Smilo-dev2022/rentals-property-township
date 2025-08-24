@@ -12,8 +12,10 @@ interface ListingsGridProps {
 const ListingsGrid: React.FC<ListingsGridProps> = ({ listings, loading }) => {
   const handleContact = (listing: Listing) => {
     // Simulate WhatsApp integration
-    const message = `Hi ${listing.landlordName}, I'm interested in your listing: ${listing.title}`;
-    const whatsappUrl = `https://wa.me/${listing.landlordPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+    const landlordName = listing.owner?.name || 'landlord';
+    const landlordPhone = listing.contactInfo?.whatsapp || listing.owner?.phone || '';
+    const message = `Hi ${landlordName}, I'm interested in your listing: ${listing.title}`;
+    const whatsappUrl = `https://wa.me/${landlordPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
     
     toast({

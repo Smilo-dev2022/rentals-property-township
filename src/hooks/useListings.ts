@@ -21,8 +21,43 @@ export const useListings = () => {
       
       // Try to fetch from API, fallback to mock data
       try {
-        const response = await apiService.getListings(filters);
-        setListings(response.listings || []);
+        const response = await apiService.getListings({
+          type: filters.type,
+          township: filters.township,
+          minPrice: filters.priceMin,
+          maxPrice: filters.priceMax,
+          amenities: filters.amenities?.map(a => a.toLowerCase()).join(',')
+        });
+        const normalized = (response.listings || []).map((l: any) => ({
+          id: l._id,
+          title: l.title,
+          description: l.description,
+          price: l.price,
+          type: l.type,
+          category: l.category,
+          images: (l.images || []).map((img: any) => img.url || img),
+          region: l.region ? {
+            id: l.region._id || l.region.id || '',
+            name: l.region.name,
+            township: l.region.township,
+            city: l.region.city,
+            province: l.region.province,
+          } : { id: '', name: '', township: '', city: '', province: '' },
+          owner: l.owner ? {
+            id: l.owner._id || l.owner.id || '',
+            name: l.owner.name,
+            email: l.owner.email,
+            phone: l.owner.phone,
+          } : { id: '', name: '', email: '' },
+          amenities: l.amenities || [],
+          contactInfo: l.contactInfo,
+          deposit: l.deposit,
+          isAvailable: l.isAvailable,
+          isBoosted: l.isFeatured,
+          isVerified: l.owner?.isVerified || false,
+          createdAt: l.createdAt,
+        }));
+        setListings(normalized);
       } catch (apiError) {
         console.warn('API not available, using mock data:', apiError);
         // Fallback to mock data
