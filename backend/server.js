@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+// NOTE: mongodb-memory-server is ESM-only in recent versions; use dynamic import below
 const authRoutes = require('./routes/auth');
 const listingRoutes = require('./routes/listings');
 const userRoutes = require('./routes/users');
@@ -19,14 +20,33 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/ekasi-rentals';
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+// MongoDB Connection (with optional in-memory fallback)
+const connectToDatabase = async () => {
+  const shouldUseMemory = process.env.MONGO_USE_MEMORY === 'true';
+  const fallbackUri = 'mongodb://localhost:27017/ekasi-rentals';
+  let mongoUri = process.env.MONGO_URI || fallbackUri;
+  let memoryServer;
+
+  try {
+    if (shouldUseMemory) {
+      const { MongoMemoryServer } = await import('mongodb-memory-server');
+      memoryServer = await MongoMemoryServer.create();
+      mongoUri = memoryServer.getUri();
+      console.log('Using in-memory MongoDB instance');
+    }
+
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+
+    console.log('MongoDB connected successfully');
+    return { memoryServer };
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  }
+};
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -50,8 +70,13 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Server Start
+// Server Start (after DB connection)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 eKasi Rentals server running on port ${PORT}`);
-});
+const start = async () => {
+  await connectToDatabase();
+  app.listen(PORT, () => {
+    console.log(`🚀 eKasi Rentals server running on port ${PORT}`);
+  });
+};
+
+start();
