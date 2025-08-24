@@ -19,7 +19,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onFiltersChange, onC
     'Umlazi', 'KwaMashu', 'Nyanga', 'Gugulethu', 'Langa'
   ];
 
-  const amenities = ['WiFi', 'Electricity', 'Water', 'Parking', 'Security'];
+  const amenities = ['wifi', 'electricity', 'water', 'parking', 'security'];
 
   return (
     <Card className="w-full">
@@ -73,6 +73,26 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onFiltersChange, onC
               <SelectItem value="flat">Flat</SelectItem>
               <SelectItem value="house">House</SelectItem>
               <SelectItem value="plot">Plot</SelectItem>
+              <SelectItem value="backroom">Backroom</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Category</Label>
+          <Select
+            value={(filters as any).category || ''}
+            onValueChange={(value) => onFiltersChange({
+              ...(filters as any),
+              category: value || undefined
+            } as any)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Rent or Sale" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="rent">For Rent</SelectItem>
+              <SelectItem value="sale">For Sale</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -118,7 +138,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onFiltersChange, onC
                     });
                   }}
                 />
-                <Label htmlFor={amenity} className="text-sm">{amenity}</Label>
+                <Label htmlFor={amenity} className="text-sm capitalize">{amenity}</Label>
               </div>
             ))}
           </div>

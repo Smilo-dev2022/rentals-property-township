@@ -22,7 +22,29 @@ export const useListings = () => {
       // Try to fetch from API, fallback to mock data
       try {
         const response = await apiService.getListings(filters);
-        setListings(response.listings || []);
+        // Map backend shape -> frontend Listing type shape for UI
+        const mapped = (response.listings || []).map((l: any) => ({
+          id: String(l._id || l.id),
+          title: l.title,
+          description: l.description,
+          price: l.price,
+          type: l.type,
+          listingType: l.category,
+          township: l.region?.township || l.region?.name || '',
+          region: l.region?.city || '',
+          street: l.address?.street || '',
+          amenities: Array.isArray(l.amenities) ? l.amenities : [],
+          images: Array.isArray(l.images) ? l.images.map((img: any) => img.url || img) : [],
+          landlordId: l.owner?._id ? String(l.owner._id) : '',
+          landlordName: l.owner?.name || '',
+          landlordPhone: l.owner?.phone || l.contactInfo?.phone || '',
+          deposit: l.deposit,
+          term: l.term || (l.category === 'rent' ? 'long' : 'short'),
+          createdAt: l.createdAt ? new Date(l.createdAt) : new Date(),
+          isBoosted: Boolean(l.isFeatured),
+          isVerified: Boolean(l.owner?.isVerified),
+        }));
+        setListings(mapped);
       } catch (apiError) {
         console.warn('API not available, using mock data:', apiError);
         // Fallback to mock data

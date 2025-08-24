@@ -1,5 +1,6 @@
 const express = require('express');
 const Listing = require('../models/Listing');
+const Region = require('../models/Region');
 const { auth, authorize, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -24,7 +25,7 @@ router.get('/', optionalAuth, async (req, res) => {
 
     // Build filter object
     const filter = { isAvailable: true };
-    
+
     if (type) filter.type = type;
     if (category) filter.category = category;
     if (minPrice || maxPrice) {
@@ -34,8 +35,22 @@ router.get('/', optionalAuth, async (req, res) => {
     }
     if (region) filter.region = region;
     if (amenities) {
-      const amenityArray = amenities.split(',');
+      const amenityArray = amenities.split(',').map((a) => a.toLowerCase());
       filter.amenities = { $in: amenityArray };
+    }
+
+    // If township provided, resolve matching Region ids and filter by them
+    if (township) {
+      const regionDocs = await Region.find({
+        township: new RegExp(township, 'i'),
+        isActive: true
+      }).select('_id');
+      const regionIds = regionDocs.map((r) => r._id);
+      if (regionIds.length === 0) {
+        // No regions match township -> return empty result fast
+        return res.json({ listings: [], totalPages: 0, currentPage: Number(page), total: 0 });
+      }
+      filter.region = { $in: regionIds };
     }
 
     // Execute query with pagination
@@ -43,16 +58,16 @@ router.get('/', optionalAuth, async (req, res) => {
       .populate('region', 'name township city province')
       .populate('owner', 'name email phone')
       .sort(sort)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
+      .limit(Number(limit) * 1)
+      .skip((Number(page) - 1) * Number(limit))
       .exec();
 
     const total = await Listing.countDocuments(filter);
 
     res.json({
       listings,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
+      totalPages: Math.ceil(total / Number(limit)),
+      currentPage: Number(page),
       total
     });
   } catch (err) {

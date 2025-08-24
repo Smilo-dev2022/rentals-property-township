@@ -2,9 +2,11 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Home, Plus, User, Settings, MapPin } from 'lucide-react';
 import { useAppContext } from '@/contexts/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
   const { sidebarOpen, toggleSidebar } = useAppContext();
+  const navigate = useNavigate();
 
   if (!sidebarOpen) return null;
 
@@ -26,19 +28,19 @@ const Sidebar: React.FC = () => {
           </div>
 
           <nav className="space-y-2">
-            <Button variant="ghost" className="w-full justify-start">
+            <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate('/'); toggleSidebar(); }}>
               <Home className="h-4 w-4 mr-3" />
               Browse Listings
             </Button>
-            <Button variant="ghost" className="w-full justify-start">
+            <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate('/map'); toggleSidebar(); }}>
               <MapPin className="h-4 w-4 mr-3" />
               Map View
             </Button>
-            <Button variant="ghost" className="w-full justify-start">
+            <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate('/create'); toggleSidebar(); }}>
               <Plus className="h-4 w-4 mr-3" />
               Post Listing
             </Button>
-            <Button variant="ghost" className="w-full justify-start">
+            <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate('/auth'); toggleSidebar(); }}>
               <User className="h-4 w-4 mr-3" />
               My Profile
             </Button>

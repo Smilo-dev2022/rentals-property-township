@@ -50,7 +50,22 @@ class ApiService {
 
   // Listings endpoints
   async getListings(params?: any) {
-    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+    // Normalize UI filters to backend query params
+    const normalized: Record<string, string> = {};
+    if (params) {
+      if (params.priceMin !== undefined) normalized.minPrice = String(params.priceMin);
+      if (params.priceMax !== undefined) normalized.maxPrice = String(params.priceMax);
+      if (params.type) normalized.type = String(params.type);
+      if (params.township) normalized.township = String(params.township);
+      if ((params as any).category) normalized.category = String((params as any).category);
+      if (params.amenities && Array.isArray(params.amenities) && params.amenities.length > 0) {
+        const lower = params.amenities.map((a: string) => a.toLowerCase());
+        normalized.amenities = lower.join(',');
+      }
+    }
+    const queryString = Object.keys(normalized).length > 0
+      ? '?' + new URLSearchParams(normalized).toString()
+      : '';
     return this.request(`/listings${queryString}`);
   }
 
