@@ -16,9 +16,9 @@ const Sidebar: React.FC = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">eK</span>
+                <span className="text-white font-bold text-sm">CR</span>
               </div>
-              <h2 className="text-lg font-bold">eKasi Rentals</h2>
+              <h2 className="text-lg font-bold">Cassie Rentals</h2>
             </div>
             <Button variant="ghost" size="sm" onClick={toggleSidebar}>
               <X className="h-5 w-5" />

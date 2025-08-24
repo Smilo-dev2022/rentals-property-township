@@ -12,21 +12,33 @@ export interface Listing {
   title: string;
   description: string;
   price: number;
-  type: 'room' | 'flat' | 'house' | 'plot';
-  listingType: 'rent' | 'sale';
-  township: string;
-  region: string;
-  street: string;
-  amenities: string[];
+  type: 'room' | 'flat' | 'house' | 'plot' | 'backroom';
+  category: 'rent' | 'sale';
   images: string[];
-  landlordId: string;
-  landlordName: string;
-  landlordPhone: string;
+  region: {
+    id: string;
+    name: string;
+    township: string;
+    city: string;
+    province: string;
+  };
+  owner: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+  };
+  amenities: string[];
+  contactInfo?: {
+    phone?: string;
+    whatsapp?: string;
+    email?: string;
+  };
   deposit?: number;
-  term: 'short' | 'long';
-  createdAt: Date;
+  isAvailable: boolean;
   isBoosted?: boolean;
   isVerified?: boolean;
+  createdAt: string;
 }
 
 export interface Filter {

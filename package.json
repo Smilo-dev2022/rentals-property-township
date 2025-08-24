@@ -5,6 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:backend": "cd backend && npm run dev",
+    "start:backend": "cd backend && npm start",
+    "seed": "cd backend && npm run seed",
+    "dev:all": "concurrently -n WEB,API -c green,cyan \"npm:dev\" \"npm:dev:backend\"",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
@@ -82,6 +86,20 @@
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1"
-  }
+    "vite": "^5.4.1",
+    "concurrently": "^8.2.2"
+  },
+  "description": "Description: // Kasi Rentals is a mobile-first property rental and sales platform built for South Africa's township communities.  // The platform connects landlords and tenants directly—eliminating traditional third-party constraints—and supports listing and searching for rooms, flats, houses, and properties for sale # 🏡 Kasi Rentals Backend",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Smilo-dev2022/rentals-property-township.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Smilo-dev2022/rentals-property-township/issues"
+  },
+  "homepage": "https://github.com/Smilo-dev2022/rentals-property-township#readme"
 }

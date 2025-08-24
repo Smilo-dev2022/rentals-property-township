@@ -1,5 +1,6 @@
 const express = require('express');
 const Listing = require('../models/Listing');
+const Region = require('../models/Region');
 const { auth, authorize, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -33,6 +34,15 @@ router.get('/', optionalAuth, async (req, res) => {
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
     if (region) filter.region = region;
+    if (township) {
+      const regionIds = await Region.find({ township: new RegExp(`^${township}$`, 'i') }).distinct('_id');
+      if (regionIds.length > 0) {
+        filter.region = { $in: regionIds };
+      } else {
+        // If no region match, return empty results quickly
+        return res.json({ listings: [], totalPages: 0, currentPage: page, total: 0 });
+      }
+    }
     if (amenities) {
       const amenityArray = amenities.split(',');
       filter.amenities = { $in: amenityArray };

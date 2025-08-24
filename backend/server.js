@@ -1,8 +1,9 @@
-// Kasi Rentals Backend - Node.js + Express + MongoDB (Mongoose)
+// Cassie Rentals Backend - Node.js + Express + MongoDB (Mongoose)
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const authRoutes = require('./routes/auth');
 const listingRoutes = require('./routes/listings');
 const userRoutes = require('./routes/users');
@@ -19,14 +20,38 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/ekasi-rentals';
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+// MongoDB Connection with fallback to in-memory server for dev
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/cassie-rentals';
+
+async function connectDatabase() {
+  try {
+    await mongoose.connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log('MongoDB connected successfully');
+  } catch (err) {
+    console.error('MongoDB connection error:', err.message);
+    if (process.env.USE_IN_MEMORY_DB === 'false') {
+      throw err;
+    }
+    console.log('Starting in-memory MongoDB for development...');
+    const mongod = await MongoMemoryServer.create();
+    const uri = mongod.getUri();
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log('Connected to in-memory MongoDB');
+    // Store reference to stop on exit
+    global.__MONGOD__ = mongod;
+  }
+}
+
+connectDatabase().catch((e) => {
+  console.error('Fatal DB connection error:', e);
+  process.exit(1);
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -36,7 +61,7 @@ app.use('/api/regions', regionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'eKasi Rentals API is running' });
+  res.json({ status: 'OK', message: 'Cassie Rentals API is running' });
 });
 
 // Error handling middleware
@@ -53,5 +78,5 @@ app.use('*', (req, res) => {
 // Server Start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 eKasi Rentals server running on port ${PORT}`);
+  console.log(`🚀 Cassie Rentals server running on port ${PORT}`);
 });
