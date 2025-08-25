@@ -3,6 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ListingCard from './ListingCard';
 import { Listing } from '@/types';
 import { toast } from '@/components/ui/use-toast';
+import api from '@/services/api';
 
 interface ListingsGridProps {
   listings: Listing[];
@@ -22,12 +23,22 @@ const ListingsGrid: React.FC<ListingsGridProps> = ({ listings, loading }) => {
     });
   };
 
-  const handleSave = (listingId: string) => {
-    // Simulate saving to favorites
-    toast({
-      title: "Listing Saved",
-      description: "Added to your saved listings.",
-    });
+  const handleSave = async (listingId: string) => {
+    try {
+      const res = await api.saveUnsaveListing(listingId);
+      toast({
+        title: res.saved ? 'Listing Saved' : 'Removed from Saved',
+        description: res.saved
+          ? 'Added to your saved listings.'
+          : 'Listing removed from your saved list.',
+      });
+    } catch (e: any) {
+      toast({
+        title: 'Action failed',
+        description: e?.message || 'Please log in to save listings.',
+        variant: 'destructive',
+      });
+    }
   };
 
   if (loading) {

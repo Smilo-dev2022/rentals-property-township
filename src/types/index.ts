@@ -35,6 +35,7 @@ export interface Filter {
   type?: string;
   township?: string;
   amenities?: string[];
+  category?: 'rent' | 'sale';
 }
 
 export interface ChatMessage {

@@ -3,9 +3,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Menu, User, Heart } from 'lucide-react';
 import { useAppContext } from '@/contexts/AppContext';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 
 const Header: React.FC = () => {
   const { toggleSidebar } = useAppContext();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { locale, setLocale, t } = useI18n();
 
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -25,7 +31,7 @@ const Header: React.FC = () => {
                 <span className="text-white font-bold text-sm">eK</span>
               </div>
               <h1 className="text-xl font-bold text-gray-900 hidden sm:block">
-                eKasi Rentals
+                {t('appTitle')}
               </h1>
             </div>
           </div>
@@ -41,14 +47,30 @@ const Header: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" className="hidden sm:flex">
+            <select className="border rounded px-2 py-1 text-sm" value={locale} onChange={(e) => setLocale(e.target.value as any)}>
+              <option value="en">EN</option>
+              <option value="zu">ZU</option>
+              <option value="xh">XH</option>
+            </select>
+            <Button variant="ghost" size="sm" className="hidden sm:flex" onClick={() => navigate('/') }>
               <Heart className="h-4 w-4 mr-2" />
-              Saved
+              {t('saved')}
             </Button>
-            <Button variant="ghost" size="sm">
-              <User className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Sign In</span>
-            </Button>
+            {user ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm hidden md:block">Hi, {user.name}</span>
+                <Button variant="outline" size="sm" onClick={() => navigate('/create')}>Post</Button>
+                <Button variant="ghost" size="sm" onClick={logout}>
+                  <User className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Sign out</span>
+                </Button>
+              </div>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
+                <User className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">{t('signIn')}</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
